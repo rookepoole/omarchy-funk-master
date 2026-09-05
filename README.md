@@ -50,7 +50,7 @@ Ordinary theme switching changes theme colors and geometry; the full restore com
 
 Theme files are at the root. `desktop/` contains the optional full-desktop additions. `install.py` installs the complete pack locally without cloning its `.git` into the theme directory. Omarchy's remote theme installer filters Lua from cloned themes, so a remote palette-only installation will not apply the custom window geometry; use the reviewed local installer for the complete pack.
 
-The repository is named `omarchy-Funk-master`; the theme selector name is **Funk Master**. No GitHub remote is required.
+The GitHub repository is [rookepoole/omarchy-funk-master](https://github.com/rookepoole/omarchy-funk-master); the theme selector name is **Funk Master**. The complete pack can also be installed from a local checkout.
 
 ## Research and validation
 
