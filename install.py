@@ -9,13 +9,19 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import getpass
+import time
+from desktop.adapt_idle import adapted
 
 REPO = Path(__file__).resolve().parent
 SLUG = "funk-master"
 PLUGIN = "local.funk-master"
 OLD_PLUGIN = "rookepoole.oligarchy-tax-department"
+SAVER = "local.funk-screensavers"
+IDLE_CLONE = (os.environ.get("USER") or getpass.getuser()) + ".idle"
 FILES = [f"themes/{SLUG}", f"plugins/{PLUGIN}", "shell.json",
-         "branding/about.txt", "branding/screensaver.txt"]
+         "branding/about.txt", "branding/screensaver.txt",
+         f"plugins/{SAVER}", f"plugins/{IDLE_CLONE}"]
 
 
 def run(*args):
@@ -121,7 +127,7 @@ def restore(backup, config, state):
         target = state / "current/background"
         remove(target)
         target.symlink_to(background)
-    run("omarchy-shell", "shell", "rescanPlugins")
+    run("omarchy", "restart", "shell")
     validate_session()
     print(f"Restored {metadata['theme']} from {backup}")
 
@@ -149,8 +155,10 @@ def install(config, state, backups):
         if (old_saver / "screensaver-managed").exists() and prior.exists() and prior.read_text().strip() == "enabled":
             remove(state / "toggles/screensaver-off")
         atomic_text(config / "shell.json", json.dumps(transformed_shell(original), indent=2) + "\n")
+        install_saver_files(config)
         run("omarchy", "theme", "set", SLUG)
-        run("omarchy-shell", "shell", "rescanPlugins")
+        run("omarchy", "restart", "shell")
+        verify_saver_loaded()
         validate_session()
     except Exception:
         print(f"Install failed. Restoring snapshot: {backup}")
@@ -160,9 +168,73 @@ def install(config, state, backups):
     print(f"Restore: python3 {REPO / 'install.py'} restore")
 
 
+def install_saver_files(config):
+    upstream = Path(os.environ.get("OMARCHY_PATH", "/usr/share/omarchy")) / "shell/plugins/services/idle/Service.qml"
+    clone = config / "plugins" / IDLE_CLONE
+    # Validate compatibility before asking Omarchy to create and activate a clone.
+    source = (clone / "Service.qml").read_text() if clone.exists() else upstream.read_text()
+    updated = adapted(source)
+    if not clone.exists():
+        run("omarchy", "plugin", "clone", "omarchy.idle")
+    else:
+        manifest = json.loads((clone / "manifest.json").read_text())
+        if manifest.get("omarchy", {}).get("clonedFrom") != "omarchy.idle":
+            raise RuntimeError("Existing idle plugin is not an Omarchy clone; refusing to overwrite it.")
+    destination = config / "plugins" / SAVER
+    remove(destination)
+    copy(REPO / "desktop/screensavers", destination)
+    atomic_text(clone / "Service.qml", updated)
+    shell = json.loads((config / "shell.json").read_text())
+    plugins = shell.setdefault("plugins", [])
+    for plugin_id in (SAVER, IDLE_CLONE):
+        if not any(p.get("id") == plugin_id for p in plugins):
+            plugins.append({"id": plugin_id})
+    disabled = [p for p in shell.get("disabledPlugins", []) if p not in (SAVER, IDLE_CLONE)]
+    if "omarchy.idle" not in disabled:
+        disabled.append("omarchy.idle")
+    shell["disabledPlugins"] = disabled
+    restores = shell.setdefault("cloneSourceRestores", [])
+    if IDLE_CLONE not in restores:
+        restores.append(IDLE_CLONE)
+    atomic_text(config / "shell.json", json.dumps(shell, indent=2) + "\n")
+    # Upgrade the badge to expose previews without changing existing bar settings.
+    badge = config / "plugins" / PLUGIN
+    if badge.is_dir():
+        atomic_text(badge / "FunkMaster.qml", (REPO / "desktop/plugin/FunkMaster.qml").read_text())
+
+
+def install_screensavers(config, state, backups):
+    backup = snapshot(config, state, backups)
+    atomic_text(backups.parent / "latest", str(backup) + "\n")
+    try:
+        install_saver_files(config)
+        run("omarchy", "restart", "shell")
+        verify_saver_loaded()
+        validate_session()
+    except Exception:
+        print(f"Screensaver installation failed; restoring {backup}")
+        restore(backup, config, state)
+        raise
+    print(f"Animated OMARCHY screensavers installed. Backup: {backup}")
+    print("Preview: omarchy-shell funk-saver preview")
+
+
+def verify_saver_loaded():
+    # A shell reload can answer ping before service plugins finish initializing.
+    for _ in range(40):
+        try:
+            result = json.loads(run("omarchy-shell", "funk-saver", "status"))
+            if "screensaverEnabled" in result:
+                return
+        except (RuntimeError, json.JSONDecodeError):
+            pass
+        time.sleep(0.15)
+    raise RuntimeError("Funk Master screensaver service did not finish loading.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("install", "restore"))
+    parser.add_argument("action", choices=("install", "screensavers", "restore"))
     parser.add_argument("--backup", type=Path, help="Restore a specific snapshot instead of latest")
     args = parser.parse_args()
     config = Path.home() / ".config/omarchy"
@@ -175,6 +247,8 @@ def main():
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.action == "install":
             install(config, state, backups)
+        elif args.action == "screensavers":
+            install_screensavers(config, state, backups)
         else:
             latest = backups.parent / "latest"
             backup = args.backup or (Path(latest.read_text().strip()) if latest.exists() else None)

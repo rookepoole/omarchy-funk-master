@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "local.funk-screensavers",
+  "name": "Funk Master ASCII Screensavers",
+  "version": "1.1.0",
+  "author": "Funk Master contributors",
+  "license": "MIT",
+  "description": "Four moving ASCII worlds starring OMARCHY, integrated with the native idle controller.",
+  "kinds": ["service"],
+  "entryPoints": { "service": "Service.qml" }
+}

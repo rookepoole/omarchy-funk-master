@@ -52,9 +52,10 @@ BarWidget {
     bar: root.bar
     text: "Funk Master"
     labelVisible: false
-    tooltipText: "FUNK MASTER · Drop a new theme"
+    tooltipText: "FUNK MASTER · Left: themes / Right: animated OMARCHY ASCII"
     onPressed: function(button) {
       if (button === Qt.LeftButton) Quickshell.execDetached(["omarchy-theme-switcher"])
+      else if (button === Qt.RightButton) Quickshell.execDetached(["omarchy-shell", "funk-saver", "preview"])
     }
   }
 }
