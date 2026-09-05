@@ -1,0 +1,7 @@
+# Wallpaper provenance
+
+Generated September 5, 2026 using the built-in image generation tool. Original output copied without image editing into `backgrounds/01-cosmic-groove.png`. Actual native size: 1672 × 941 pixels (the requested larger size was not returned). No pre-existing album cover was supplied as an input.
+
+## Final prompt
+
+Use case: stylized-concept. Asset type: original Linux desktop wallpaper for Omarchy Funk Master. Create a polished, weird and funky psychedelic space-funk screenprint illustration, widescreen 16:9, ideally 3840x2160. Deep near-black aubergine background #211329, hot pink #FF67BE, acid lime #D6FF62, tangerine #FF9B54, butter cream #FFF0D0 and electric lilac. A surreal vinyl-record planet with fluid groovy ribbons orbiting it, a couple of charming abstract alien eyeball shapes, checkered warped ribbon fragments and Memphis squiggles. Oversized curling liquid forms, sophisticated flat ink layering with subtle print grain, 1970s psychedelic poster rhythm meeting playful 1980s Memphis geometry and cosmic funk. Asymmetric composition, strongest artwork along right half and lower edge, quiet dark negative space across left and middle for readable desktop windows. Beautiful intentional composition, truly eccentric, joyful, premium album sleeve feeling. No text, no lettering, no logos, no watermark, no UI or desktop mockup. Original artwork; do not reproduce any existing album cover.

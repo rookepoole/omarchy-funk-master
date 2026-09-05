@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "local.funk-master",
+  "name": "Funk Master",
+  "version": "1.0.0",
+  "author": "Funk Master contributors",
+  "license": "MIT",
+  "description": "A vinyl record badge and one-click theme picker for your cosmic desktop.",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "FunkMaster.qml" },
+  "barWidget": {
+    "displayName": "Funk Master",
+    "description": "Click the record to open the theme picker.",
+    "category": "Appearance",
+    "allowMultiple": false,
+    "defaultSection": "left"
+  }
+}

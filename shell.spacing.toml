@@ -1,0 +1,9 @@
+[spacing]
+scale = 1.05
+scale-with-font = true
+panel-padding = 20
+popup-padding = 16
+control-height = 32
+control-padding-x = 14
+control-padding-y = 8
+popup-row-height = 32
