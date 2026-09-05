@@ -1,0 +1,45 @@
+add_newline = true
+command_timeout = 200
+palette = "funk"
+format = "[╭─](bold pink)[ OMARCHY ](bold fg:ink bg:pink)[](fg:pink bg:surface)$directory$git_branch$git_status$cmd_duration$line_break[╰─](bold pink)$character"
+
+[palettes.funk]
+ink = "#211329"
+surface = "#35203E"
+cream = "#FFF0D0"
+pink = "#FF67BE"
+lime = "#D6FF62"
+orange = "#FF9B54"
+lilac = "#C69AFF"
+red = "#FF788E"
+
+[directory]
+format = "[ $path ]($style)"
+style = "bold fg:cream bg:surface"
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " "
+
+[git_branch]
+format = "[](fg:surface bg:lime)[ $symbol$branch ]($style)[](fg:lime) "
+style = "bold fg:ink bg:lime"
+symbol = " "
+
+[git_status]
+format = "[$all_status$ahead_behind]($style) "
+style = "bold orange"
+conflicted = "! "
+untracked = "? "
+modified = "~ "
+staged = "+ "
+deleted = "- "
+
+[cmd_duration]
+min_time = 1500
+format = "[ $duration]($style)"
+style = "lilac"
+
+[character]
+success_symbol = "[❯](bold lime)"
+error_symbol = "[✗ ❯](bold red)"
+vimcmd_symbol = "[❮](bold pink)"

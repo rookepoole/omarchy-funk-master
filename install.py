@@ -12,6 +12,7 @@ import tempfile
 import getpass
 import time
 from desktop.adapt_idle import adapted
+from desktop.apps import manager as app_theme
 
 REPO = Path(__file__).resolve().parent
 SLUG = "funk-master"
@@ -21,7 +22,8 @@ SAVER = "local.funk-screensavers"
 IDLE_CLONE = (os.environ.get("USER") or getpass.getuser()) + ".idle"
 FILES = [f"themes/{SLUG}", f"plugins/{PLUGIN}", "shell.json",
          "branding/about.txt", "branding/screensaver.txt",
-         f"plugins/{SAVER}", f"plugins/{IDLE_CLONE}"]
+         f"plugins/{SAVER}", f"plugins/{IDLE_CLONE}",
+         "funk-apps", "hooks/theme-set.d/60-funk-apps"]
 
 
 def run(*args):
@@ -91,12 +93,18 @@ def snapshot(config, state, backups):
         if source.exists() or source.is_symlink():
             copy(source, backup / "config" / relative)
             present.append(relative)
+    external_present = []
+    for relative in app_theme.EXTERNAL_FILES:
+        source = config.parent.parent / relative
+        if source.exists() or source.is_symlink():
+            copy(source, backup / "external" / relative)
+            external_present.append(relative)
     theme_name = (state / "current/theme.name").read_text().strip()
     background = state / "current/background"
     saver_flag = state / "toggles/screensaver-off"
     if saver_flag.exists():
         copy(saver_flag, backup / "screensaver-off")
-    metadata = {"present": present, "theme": theme_name,
+    metadata = {"present": present, "external_present": external_present, "theme": theme_name,
                 "background": os.readlink(background) if background.is_symlink() else None}
     atomic_text(backup / "snapshot.json", json.dumps(metadata, indent=2) + "\n")
     return backup
@@ -111,12 +119,27 @@ def validate_session():
 
 def restore(backup, config, state):
     metadata = json.loads((backup / "snapshot.json").read_text())
+    external_backup, external_metadata = backup, metadata
+    # Older desktop snapshots predate app styling. Recover its original files
+    # from the first snapshot that captured them, before removing the imports.
+    if "external_present" not in metadata and (config / "funk-apps").exists():
+        for candidate in sorted(backup.parent.glob("*/snapshot.json")):
+            saved = json.loads(candidate.read_text())
+            if "external_present" in saved:
+                external_backup, external_metadata = candidate.parent, saved
+                break
     # Restore files before reactivating the saved theme. No config resets.
     for relative in FILES:
         destination = config / relative
         remove(destination)
         if relative in metadata["present"]:
             copy(backup / "config" / relative, destination)
+    if "external_present" in external_metadata:
+        for relative in app_theme.EXTERNAL_FILES:
+            destination = config.parent.parent / relative
+            remove(destination)
+            if relative in external_metadata["external_present"]:
+                copy(external_backup / "external" / relative, destination)
     saver_flag = state / "toggles/screensaver-off"
     remove(saver_flag)
     if (backup / "screensaver-off").exists():
@@ -142,7 +165,7 @@ def install(config, state, backups):
         remove(destination)
         destination.mkdir(parents=True)
         for source in REPO.iterdir():
-            if source.name == "backgrounds" or source.suffix in (".toml", ".lua", ".theme", ".rgb"):
+            if source.name == "backgrounds" or source.suffix in (".toml", ".lua", ".theme", ".rgb", ".conf", ".ini"):
                 copy(source, destination / source.name)
         plugin = config / "plugins" / PLUGIN
         remove(plugin)
@@ -156,6 +179,7 @@ def install(config, state, backups):
             remove(state / "toggles/screensaver-off")
         atomic_text(config / "shell.json", json.dumps(transformed_shell(original), indent=2) + "\n")
         install_saver_files(config)
+        app_theme.install()
         run("omarchy", "theme", "set", SLUG)
         run("omarchy", "restart", "shell")
         verify_saver_loaded()
@@ -232,9 +256,30 @@ def verify_saver_loaded():
     raise RuntimeError("Funk Master screensaver service did not finish loading.")
 
 
+def install_apps(config, state, backups):
+    backup = snapshot(config, state, backups)
+    atomic_text(backups.parent / "latest", str(backup) + "\n")
+    try:
+        destination = config / "themes" / SLUG
+        if not destination.is_dir():
+            raise RuntimeError("Install the Funk Master theme before applying the app styling upgrade.")
+        for name in ("colors.toml", "alacritty.toml", "ghostty.conf", "kitty.conf", "foot.ini"):
+            remove(destination / name)
+            copy(REPO / name, destination / name)
+        app_theme.install()
+        run("omarchy", "theme", "set", SLUG)
+        validate_session()
+    except Exception:
+        print(f"App styling installation failed; restoring {backup}")
+        restore(backup, config, state)
+        raise
+    print(f"GTK and CLI styling installed. Backup: {backup}")
+    print("Open a new terminal and new GTK app process to see all changes.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("install", "screensavers", "restore"))
+    parser.add_argument("action", choices=("install", "screensavers", "apps", "restore"))
     parser.add_argument("--backup", type=Path, help="Restore a specific snapshot instead of latest")
     args = parser.parse_args()
     config = Path.home() / ".config/omarchy"
@@ -249,6 +294,8 @@ def main():
             install(config, state, backups)
         elif args.action == "screensavers":
             install_screensavers(config, state, backups)
+        elif args.action == "apps":
+            install_apps(config, state, backups)
         else:
             latest = backups.parent / "latest"
             backup = args.backup or (Path(latest.read_text().strip()) if latest.exists() else None)

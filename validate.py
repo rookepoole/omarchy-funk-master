@@ -52,11 +52,13 @@ class DesktopChecks(unittest.TestCase):
     def test_snapshot_restore_files_and_symlinks(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary)
-            config, state = base / 'config', base / 'state'
+            config, state = base / 'home/.config/omarchy', base / 'home/.local/state/omarchy'
             install.atomic_text(config / 'shell.json', '{"old": true}\n')
             install.atomic_text(config / 'branding/about.txt', 'Old branding\n')
             install.atomic_text(state / 'current/theme.name', 'old-theme\n')
             install.atomic_text(state / 'toggles/screensaver-off', 'saved\n')
+            rc = base / 'home/.bashrc'
+            install.atomic_text(rc, 'alias original=true\n')
             old_wallpaper = base / 'old.png'
             old_wallpaper.write_bytes(b'original')
             (state / 'current/background').symlink_to(old_wallpaper)
@@ -64,6 +66,9 @@ class DesktopChecks(unittest.TestCase):
             theme.parent.mkdir(parents=True)
             theme.symlink_to(base / 'external-theme', target_is_directory=True)
             backup = install.snapshot(config, state, state / 'funk-master/backups')
+            install.atomic_text(rc, 'changed\n')
+            gtk = base / 'home/.config/gtk-4.0/gtk.css'
+            install.atomic_text(gtk, 'new override\n')
             install.atomic_text(config / 'shell.json', '{"new": true}\n')
             install.remove(theme)
             install.atomic_text(theme / 'colors.toml', 'changed')
@@ -78,6 +83,21 @@ class DesktopChecks(unittest.TestCase):
             self.assertFalse((config / 'plugins/local.funk-master').exists())
             self.assertEqual((state / 'toggles/screensaver-off').read_text(), 'saved\n')
             self.assertEqual((state / 'current/background').resolve(), old_wallpaper)
+            self.assertEqual(rc.read_text(), 'alias original=true\n')
+            self.assertFalse(gtk.exists())
+            # Snapshots from the earlier release have no app-file inventory.
+            old = backup.parent / '000-legacy'
+            install.copy(backup, old)
+            legacy = json.loads((old / 'snapshot.json').read_text())
+            del legacy['external_present']
+            (old / 'snapshot.json').write_text(json.dumps(legacy))
+            install.atomic_text(config / 'funk-apps/manager.py', 'installed')
+            install.atomic_text(rc, 'new app hook\n')
+            install.atomic_text(gtk, 'new GTK import\n')
+            with patch.object(install, 'run', return_value=''):
+                install.restore(old, config, state)
+            self.assertEqual(rc.read_text(), 'alias original=true\n')
+            self.assertFalse(gtk.exists())
 
     def test_syntax_and_plugin_manifest(self):
         subprocess.run(['luac', '-p', str(ROOT / 'hyprland.lua')], check=True)

@@ -1,0 +1,89 @@
+/* Funk Master: semantic GTK palette. */
+@define-color window_bg_color #291831;
+@define-color window_fg_color #FFF0D0;
+@define-color view_bg_color #211329;
+@define-color view_fg_color #FFF0D0;
+@define-color headerbar_bg_color #35203E;
+@define-color headerbar_fg_color #FFF0D0;
+@define-color headerbar_backdrop_color #2D1B35;
+@define-color headerbar_border_color #684574;
+@define-color sidebar_bg_color #180D20;
+@define-color sidebar_fg_color #E7CDE8;
+@define-color sidebar_backdrop_color #180D20;
+@define-color secondary_sidebar_bg_color #24152D;
+@define-color secondary_sidebar_fg_color #FFF0D0;
+@define-color card_bg_color #35203E;
+@define-color card_fg_color #FFF0D0;
+@define-color dialog_bg_color #35203E;
+@define-color dialog_fg_color #FFF0D0;
+@define-color popover_bg_color #35203E;
+@define-color popover_fg_color #FFF0D0;
+@define-color accent_bg_color #D6FF62;
+@define-color accent_fg_color #211329;
+@define-color accent_color #D6FF62;
+@define-color destructive_bg_color #FF788E;
+@define-color destructive_fg_color #211329;
+@define-color destructive_color #FF788E;
+@define-color success_bg_color #D6FF62;
+@define-color success_fg_color #211329;
+@define-color success_color #D6FF62;
+@define-color warning_bg_color #FFE279;
+@define-color warning_fg_color #211329;
+@define-color warning_color #FFE279;
+@define-color error_bg_color #FF788E;
+@define-color error_fg_color #211329;
+@define-color error_color #FF788E;
+
+:root {
+  --window-bg-color: #291831;
+  --window-fg-color: #FFF0D0;
+  --view-bg-color: #211329;
+  --view-fg-color: #FFF0D0;
+  --headerbar-bg-color: #35203E;
+  --headerbar-fg-color: #FFF0D0;
+  --headerbar-backdrop-color: #2D1B35;
+  --headerbar-border-color: #684574;
+  --sidebar-bg-color: #180D20;
+  --sidebar-fg-color: #E7CDE8;
+  --sidebar-backdrop-color: #180D20;
+  --secondary-sidebar-bg-color: #24152D;
+  --secondary-sidebar-fg-color: #FFF0D0;
+  --card-bg-color: #35203E;
+  --card-fg-color: #FFF0D0;
+  --dialog-bg-color: #35203E;
+  --dialog-fg-color: #FFF0D0;
+  --popover-bg-color: #35203E;
+  --popover-fg-color: #FFF0D0;
+  --accent-bg-color: #D6FF62;
+  --accent-fg-color: #211329;
+  --accent-color: #D6FF62;
+  --destructive-bg-color: #FF788E;
+  --destructive-fg-color: #211329;
+  --destructive-color: #FF788E;
+  --success-bg-color: #D6FF62;
+  --success-fg-color: #211329;
+  --success-color: #D6FF62;
+  --warning-bg-color: #FFE279;
+  --warning-fg-color: #211329;
+  --warning-color: #FFE279;
+  --error-bg-color: #FF788E;
+  --error-fg-color: #211329;
+  --error-color: #FF788E;
+  --shade-color: rgba(16, 9, 22, 0.38);
+  --headerbar-shade-color: rgba(16, 9, 22, 0.3);
+  --sidebar-shade-color: rgba(16, 9, 22, 0.3);
+}
+/* Keep state distinctions visible, especially in Files. */
+.navigation-sidebar row:selected,
+.navigation-sidebar row:selected:hover {
+  background-color: #57335F;
+  color: #D6FF62;
+}
+.nautilus-window .view:selected,
+.nautilus-window gridview > child:selected,
+.nautilus-window listview > row:selected {
+  background-color: #57335F;
+  color: #D6FF62;
+}
+entry:focus-within { outline-color: #FF67BE; }
+progressbar progress, scale highlight { background-color: #D6FF62; }

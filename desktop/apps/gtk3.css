@@ -1,0 +1,57 @@
+/* Funk Master: semantic GTK palette. */
+@define-color window_bg_color #291831;
+@define-color window_fg_color #FFF0D0;
+@define-color view_bg_color #211329;
+@define-color view_fg_color #FFF0D0;
+@define-color headerbar_bg_color #35203E;
+@define-color headerbar_fg_color #FFF0D0;
+@define-color headerbar_backdrop_color #2D1B35;
+@define-color headerbar_border_color #684574;
+@define-color sidebar_bg_color #180D20;
+@define-color sidebar_fg_color #E7CDE8;
+@define-color sidebar_backdrop_color #180D20;
+@define-color secondary_sidebar_bg_color #24152D;
+@define-color secondary_sidebar_fg_color #FFF0D0;
+@define-color card_bg_color #35203E;
+@define-color card_fg_color #FFF0D0;
+@define-color dialog_bg_color #35203E;
+@define-color dialog_fg_color #FFF0D0;
+@define-color popover_bg_color #35203E;
+@define-color popover_fg_color #FFF0D0;
+@define-color accent_bg_color #D6FF62;
+@define-color accent_fg_color #211329;
+@define-color accent_color #D6FF62;
+@define-color destructive_bg_color #FF788E;
+@define-color destructive_fg_color #211329;
+@define-color destructive_color #FF788E;
+@define-color success_bg_color #D6FF62;
+@define-color success_fg_color #211329;
+@define-color success_color #D6FF62;
+@define-color warning_bg_color #FFE279;
+@define-color warning_fg_color #211329;
+@define-color warning_color #FFE279;
+@define-color error_bg_color #FF788E;
+@define-color error_fg_color #211329;
+@define-color error_color #FF788E;
+
+@define-color theme_bg_color #291831;
+@define-color theme_fg_color #FFF0D0;
+@define-color theme_base_color #211329;
+@define-color theme_text_color #FFF0D0;
+@define-color theme_selected_bg_color #57335F;
+@define-color theme_selected_fg_color #D6FF62;
+@define-color insensitive_fg_color #B29DBA;
+@define-color borders #684574;
+window.background { background-color: #291831; color: #FFF0D0; }
+headerbar, .titlebar { background-image: none; background-color: #35203E; color: #FFF0D0; }
+.view, textview text, treeview.view { background-color: #211329; color: #FFF0D0; }
+.sidebar, .sidebar .view { background-color: #180D20; color: #E7CDE8; }
+.view:selected, row:selected, textview text selection { background-color: #57335F; color: #D6FF62; }
+entry { background-color: #211329; color: #FFF0D0; border-color: #684574; }
+entry:focus { border-color: #FF67BE; }
+button { background-image: none; background-color: #35203E; color: #FFF0D0; border-color: #684574; }
+button:hover { background-color: #57335F; }
+button.suggested-action { background-color: #D6FF62; color: #211329; }
+button.destructive-action { background-color: #FF788E; color: #211329; }
+menu, .menu, popover.background { background-color: #35203E; color: #FFF0D0; }
+menuitem:hover { background-color: #57335F; color: #D6FF62; }
